@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>jQuery Rain</title>
+
+  <style>
+    html {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      background-color: black;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="test"></div>
+  <script src="./app/components/jquery/jquery.js"></script>
+  <script src="./rain.js"></script>
+  <script>
+    $(function() {
+      $( 'body' ).rain();
+    });
+  </script>
+</body>
+</html>
