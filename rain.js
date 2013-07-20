@@ -11,14 +11,22 @@
   var pluginName = 'rain',
     defaults = {
       gravity: 10,
-      color: 'white',
-      count: 2000,
+      color: 'rgba(255, 255, 255, 0.6)',
+      count: 500,
       lineWidth: 0.5,
       scale: 1.25,
-      wind: {
-        x: -2,
-        y: 0
-      }
+      wind: -2,
+      velocity: {
+        min: {
+          x: 0,
+          y: 10
+        },
+        max: {
+          x: -4,
+          y: 50
+        }
+      },
+      debug: false
     };
 
     // Paul Irish's requestAnimationFrame polyfill.
@@ -37,6 +45,10 @@
 
   var prevTime = Date.now(),
       currTime = prevTime;
+
+  function randomInRange( min, max ) {
+    return min + Math.random() * ( max - min );
+  }
 
   function draw() {
     if ( !rainObjects.length ) {
@@ -106,13 +118,23 @@
 
       this.resize();
 
+      var xmin = this.options.velocity.min.x,
+          ymin = this.options.velocity.min.y,
+          xmax = this.options.velocity.max.x,
+          ymax = this.options.velocity.max.y;
+
       var i = 0;
       while ( i < this.options.count ) {
         this.points.positions.push(
           Math.floor( Math.random() * this.canvas.width  ),
-          5 * Math.floor( -Math.random() * this.canvas.height )
+          Math.floor( Math.random() * this.canvas.height )
         );
-        this.points.velocities.push( 0, this.options.gravity );
+
+        this.points.velocities.push(
+          randomInRange( xmin, xmax ),
+          randomInRange( ymin, ymax )
+        );
+
         i++;
       }
     },
@@ -129,41 +151,52 @@
     },
 
     update: function( dt ) {
+      var width  = this.canvas.width,
+          height = this.canvas.height;
+
       var i = 0,
           positions  = this.points.positions,
           velocities = this.points.velocities,
           pointCount = 0.5 * positions.length;
 
-      var dWindX = this.options.wind.x * dt,
-          dWindY = this.options.wind.y * dt;
+      var xmin = this.options.velocity.min.x,
+          ymin = this.options.velocity.min.y,
+          xmax = this.options.velocity.max.x,
+          ymax = this.options.velocity.max.y;
 
-      var dy = this.options.gravity * dt,
-          xIndex, yIndex;
+      var dx = this.options.wind    * dt,
+          dy = this.options.gravity * dt;
+
+      var xIndex, yIndex;
 
       while ( i < pointCount ) {
         xIndex = 2 * i;
         yIndex = 2 * i + 1;
 
-        velocities[ xIndex ] += dWindX;
-        velocities[ yIndex ] += dy + dWindY;
+        velocities[ xIndex ] += dx;
+        velocities[ yIndex ] += dy;
 
         positions[ xIndex ] += velocities[ xIndex ];
         positions[ yIndex ] += velocities[ yIndex ];
 
         if ( 0 > positions[ xIndex ] ) {
-          positions[ xIndex ] = this.canvas.width;
+          velocities[ xIndex ] = randomInRange( xmin, xmax );
+          positions[ xIndex ] = width;
         }
 
-        if ( positions[ xIndex ] > this.canvas.width) {
+        if ( positions[ xIndex ] > width ) {
+          velocities[ xIndex ] = randomInRange( xmin, xmax );
           positions[ xIndex ] = 0;
         }
 
-        if ( positions[ yIndex ] > this.canvas.height ) {
-          velocities[ xIndex ] = 0;
-          velocities[ yIndex ] = 0;
+        if ( 0 > positions[ yIndex ] ) {
+          velocities[ yIndex ] = randomInRange( ymin, ymax );
+          positions[ yIndex ] = height;
+        }
 
-          positions[ xIndex ] = Math.floor( Math.random() * this.canvas.width );
-          positions[ yIndex ] = 5 * Math.floor( -Math.random() * this.canvas.height ) - this.canvas.height;
+        if ( positions[ yIndex ] > height ) {
+          velocities[ yIndex ] = randomInRange( ymin, ymax );
+          positions[ yIndex ] = 0;
         }
 
         i++;
@@ -183,36 +216,51 @@
           pointCount = 0.5 * positions.length;
 
       var xIndex, yIndex,
-          x, y, vx, vy;
+          x0, y0, x1, y1;
 
       this.ctx.beginPath();
       while ( i < pointCount ) {
         xIndex = 2 * i;
         yIndex = 2 * i + 1;
 
-        x = positions[ xIndex ];
-        y = positions[ yIndex ];
+        x0 = positions[ xIndex ];
+        y0 = positions[ yIndex ];
 
-        vx = velocities[ xIndex ] * scale;
-        vy = velocities[ yIndex ] * scale;
+        x1 = x0 + velocities[ xIndex ] * scale;
+        y1 = y0 + velocities[ yIndex ] * scale;
 
         i++;
 
-        if ( 0 > x || x > width ) {
+        if ( 0 > x0 && 0 > x1 ||
+             0 > y0 && 0 > y1 ) {
           continue;
         }
 
-        if ( 0 > y || y > height ) {
+        if ( x0 >  width && x1 >  width ||
+             y0 > height && y1 > height ) {
           continue;
         }
 
-        this.ctx.moveTo( x, y );
-        this.ctx.lineTo( x + vx, y + vy );
+        this.ctx.moveTo( x0, y0 );
+        this.ctx.lineTo( x1, y1 );
       }
 
       this.ctx.strokeStyle = this.options.color;
       this.ctx.lineWidth = this.options.lineWidth;
       this.ctx.stroke();
+
+
+      if ( this.options.debug ) {
+        this.ctx.fillStyle = 'red';
+        i = 0;
+        while ( i < pointCount ) {
+          xIndex = 2 * i;
+          yIndex = 2 * i + 1;
+
+          this.ctx.fillRect( positions[xIndex], positions[yIndex], 4, 4 );
+          i++;
+        }
+      }
     }
   };
 

@@ -16,15 +16,18 @@
     }
 
     .lead {
-      font-family: "adelle", Georgia, Times, serif;
-      font-size: 72px;
       width: 60%;
-      text-align: center;
       margin: 0 auto;
-      color: #333339;
       padding-top: 80px;
-      text-shadow: 0px 1px 0px #aaa, 0px -1px 0px #000;
+
+      text-align: center;
+      font-family: "adelle", Georgia, Times, serif;
+
+      font-size: 72px;
       line-height: 0.95;
+
+      color: #333339;
+      text-shadow: 0px 1px 0px #aaa, 0px -1px 0px #000;
     }
 
     .section {
@@ -82,12 +85,19 @@
     $(function() {
       $( '#section-00' ).rain();
       $( '#test-00' ).rain({
-        color: 'red',
-        count: 200,
+        gravity: -100,
+        color: 'green',
+        count: 20,
         lineWidth: 2,
-        wind: {
-          x: 2,
-          y: 0
+        velocity: {
+          min: {
+            x: 0,
+            y: 0
+          },
+          max: {
+            x: 0,
+            y: -40
+          }
         }
       });
     });
