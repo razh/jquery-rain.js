@@ -13,18 +13,83 @@
       margin: 0;
       width: 100%;
       height: 100%;
-      background-color: black;
+    }
+
+    .lead {
+      font-family: "adelle", Georgia, Times, serif;
+      font-size: 72px;
+      width: 60%;
+      text-align: center;
+      margin: 0 auto;
+      color: #333339;
+      padding-top: 80px;
+      text-shadow: 0px 1px 0px #aaa, 0px -1px 0px #000;
+      line-height: 0.95;
+    }
+
+    .section {
+      min-height: 480px;
+      height: 100%;
+    }
+
+    #section-00 {
+      background-color: #50505D;
+      box-shadow: inset 0 0 150px black;
+    }
+
+    #section-01 {
+      background: white;
+    }
+
+    #section-02 {
+      background: black;
+    }
+
+    .test {
+      width: 50%;
+      height: 50%;
+      float: left;
+    }
+
+    #test-00 {
+      background-color: white;
+    }
+
+    #test-03 {
+      background-color: blue;
     }
   </style>
+
+  <script type="text/javascript" src="//use.typekit.net/vhb3jey.js"></script>
+  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
 </head>
 <body>
+  <div class="section" id="section-00">
+    <div class="lead">It was a dark and stormy night...</div>
+  </div>
 
-  <div id="test"></div>
+  <div class="section" id="section-01"></div>
+
+  <div class="section" id="section-02">
+  <div class="test" id="test-00"></div>
+  <div class="test" id="test-01"></div>
+  <div class="test" id="test-02"></div>
+  <div class="test" id="test-03"></div>
+  </div>
   <script src="./app/components/jquery/jquery.js"></script>
   <script src="./rain.js"></script>
   <script>
     $(function() {
-      $( 'body' ).rain();
+      $( '#section-00' ).rain();
+      $( '#test-00' ).rain({
+        color: 'red',
+        count: 200,
+        lineWidth: 2,
+        wind: {
+          x: 2,
+          y: 0
+        }
+      });
     });
   </script>
 </body>

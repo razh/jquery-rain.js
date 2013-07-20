@@ -13,15 +13,13 @@
       gravity: 10,
       color: 'white',
       count: 2000,
-      lineWidth: 0.3,
+      lineWidth: 0.5,
       scale: 1.25,
       wind: {
         x: -2,
         y: 0
       }
     };
-
-  var PI2 = 2 * Math.PI;
 
     // Paul Irish's requestAnimationFrame polyfill.
     // http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
@@ -41,6 +39,10 @@
       currTime = prevTime;
 
   function draw() {
+    if ( !rainObjects.length ) {
+      return;
+    }
+
     currTime = Date.now();
     var dt = currTime - prevTime;
     prevTime = currTime;
@@ -54,16 +56,19 @@
     dt *= 1e-3;
 
     rainObjects.forEach(function( rainObject ) {
-      rainObject.update( dt );
-      rainObject.draw();
+      if ( rainObject.running ) {
+        rainObject.update( dt );
+        rainObject.draw();
+      }
     });
 
     window.requestAnimFrame( draw );
   }
 
 
-  function Rain( element, options ) {
-    this.element = element;
+  function Rain( el, options ) {
+    this.el  = el;
+    this.$el = $( el );
 
     this.options = $.extend( {}, defaults, options );
 
@@ -93,16 +98,13 @@
   Rain.prototype = {
 
     init: function() {
-      var $el = $( this.element );
-
-      this.$canvas = $( '<canvas></canvas>' ).appendTo( $el );
+      this.$canvas = $( '<canvas></canvas>' ).prependTo( this.$el );
       this.canvas  = this.$canvas[0];
       this.ctx     = this.canvas.getContext( '2d' );
 
-      // Custom CSS.
       this.$canvas.css( 'position', 'absolute' );
-      this.canvas.width  = $el.width();
-      this.canvas.height = $el.height();
+
+      this.resize();
 
       var i = 0;
       while ( i < this.options.count ) {
@@ -113,6 +115,17 @@
         this.points.velocities.push( 0, this.options.gravity );
         i++;
       }
+    },
+
+    resize: function() {
+      // Custom CSS.
+      this.$canvas.css({
+        top:  this.$el.offset().top,
+        left: this.$el.offset().left
+      });
+
+      this.canvas.width  = this.$el.width();
+      this.canvas.height = this.$el.height();
     },
 
     update: function( dt ) {
@@ -137,11 +150,12 @@
         positions[ xIndex ] += velocities[ xIndex ];
         positions[ yIndex ] += velocities[ yIndex ];
 
-        if ( 0 > positions[ xIndex ] || positions[ xIndex ] > this.canvas.width ) {
-          velocities[ xIndex ] = 0;
+        if ( 0 > positions[ xIndex ] ) {
+          positions[ xIndex ] = this.canvas.width;
+        }
 
-          positions[ xIndex ] = Math.floor( Math.random() * this.canvas.width  ),
-          positions[ yIndex ] = 5 * Math.floor( -Math.random() * this.canvas.height );
+        if ( positions[ xIndex ] > this.canvas.width) {
+          positions[ xIndex ] = 0;
         }
 
         if ( positions[ yIndex ] > this.canvas.height ) {
@@ -149,7 +163,7 @@
           velocities[ yIndex ] = 0;
 
           positions[ xIndex ] = Math.floor( Math.random() * this.canvas.width );
-          positions[ yIndex ] = 3 * Math.floor( -Math.random() * this.canvas.height );
+          positions[ yIndex ] = 5 * Math.floor( -Math.random() * this.canvas.height ) - this.canvas.height;
         }
 
         i++;
@@ -157,7 +171,10 @@
     },
 
     draw: function() {
-      this.ctx.clearRect( 0, 0, this.canvas.width, this.canvas.height );
+      var width  = this.canvas.width,
+          height = this.canvas.height;
+
+      this.ctx.clearRect( 0, 0, width, height );
 
       var i = 0,
           scale      = this.options.scale,
@@ -179,10 +196,18 @@
         vx = velocities[ xIndex ] * scale;
         vy = velocities[ yIndex ] * scale;
 
+        i++;
+
+        if ( 0 > x || x > width ) {
+          continue;
+        }
+
+        if ( 0 > y || y > height ) {
+          continue;
+        }
+
         this.ctx.moveTo( x, y );
         this.ctx.lineTo( x + vx, y + vy );
-
-        i++;
       }
 
       this.ctx.strokeStyle = this.options.color;
@@ -190,6 +215,12 @@
       this.ctx.stroke();
     }
   };
+
+  $( window ).resize(function() {
+    rainObjects.forEach(function( rainObject ) {
+      rainObject.resize();
+    });
+  });
 
   $.fn[ pluginName ] = function( options ) {
     return this.each(function() {
