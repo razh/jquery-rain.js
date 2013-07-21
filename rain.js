@@ -182,20 +182,20 @@
         if ( 0 > positions[ xIndex ] ) {
           velocities[ xIndex ] = randomInRange( xmin, xmax );
           positions[ xIndex ] = width;
-        }
-
-        if ( positions[ xIndex ] > width ) {
+          positions[ yIndex ] = Math.random() * this.canvas.height;
+        } else if ( positions[ xIndex ] > width ) {
           velocities[ xIndex ] = randomInRange( xmin, xmax );
           positions[ xIndex ] = 0;
+          positions[ yIndex ] = Math.random() * this.canvas.height;
         }
 
         if ( 0 > positions[ yIndex ] ) {
           velocities[ yIndex ] = randomInRange( ymin, ymax );
+          positions[ xIndex ] = Math.random() * this.canvas.width;
           positions[ yIndex ] = height;
-        }
-
-        if ( positions[ yIndex ] > height ) {
+        } else if ( positions[ yIndex ] > height ) {
           velocities[ yIndex ] = randomInRange( ymin, ymax );
+          positions[ xIndex ] = Math.random() * this.canvas.width;
           positions[ yIndex ] = 0;
         }
 
@@ -226,17 +226,14 @@
         x0 = positions[ xIndex ];
         y0 = positions[ yIndex ];
 
-        x1 = x0 + velocities[ xIndex ] * scale;
-        y1 = y0 + velocities[ yIndex ] * scale;
+        x1 = x0 - velocities[ xIndex ] * scale;
+        y1 = y0 - velocities[ yIndex ] * scale;
 
         i++;
 
         if ( 0 > x0 && 0 > x1 ||
-             0 > y0 && 0 > y1 ) {
-          continue;
-        }
-
-        if ( x0 >  width && x1 >  width ||
+             0 > y0 && 0 > y1 ||
+             x0 >  width && x1 >  width ||
              y0 > height && y1 > height ) {
           continue;
         }
