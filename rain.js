@@ -10,16 +10,23 @@
 
   var pluginName = 'rain',
     defaults = {
-      //
+      // Color of rain. Any valid rgb(a)/hsl/hex/etc. color code should work.
       color: 'rgba(255, 255, 255, 0.6)',
-      // Number of particles.
+      // Number of particles. [0, MAX_VALUE).
       count: 200,
+      // Width of each particle (perpendicular to the direction of travel).
+      // [0, MAX_VALUE).
       lineWidth: 0.5,
+      // Length of each particle, as a function of its velocity.
       scale: 1.25,
-      // Climatologists may disagree.
+      // Variation in wind (climatologists may disagree).
+      // If 0, the initial wind velocity is the same for all.
       shear: 0,
       speed: 2000,
+      // Angle of spread in degrees. [0, 90]. At 90 degrees, rain will fall 45
+      // degrees to the left and 45 degrees to the right.
       spread: 0,
+      // Horizontal velocity.
       wind: 0
     };
 
@@ -33,6 +40,8 @@
         window.setTimeout( callback, 1000 / 60 );
       };
   }) ();
+
+  var DEG_TO_RAD = Math.PI / 180;
 
   // All the running rain objects.
   var rainObjects = [];
@@ -112,22 +121,45 @@
 
       this.resize();
 
-      var xmin = this.options.velocity.min.x,
-          ymin = this.options.velocity.min.y,
-          xmax = this.options.velocity.max.x,
-          ymax = this.options.velocity.max.y;
+      var width  = this.canvas.width,
+          height = this.canvas.height;
 
-      var i = 0;
+      var shear  = this.options.shear,
+          speed  = this.options.speed,
+          spread = this.options.spread,
+          wind   = this.options.wind;
+
+      var angle,
+          windSpeed,
+          i = 0;
+
       while ( i < this.options.count ) {
         this.points.positions.push(
-          Math.floor( Math.random() * this.canvas.width  ),
-          Math.floor( Math.random() * this.canvas.height )
+          Math.floor( Math.random() * width  ),
+          Math.floor( Math.random() * height )
         );
 
-        this.points.velocities.push(
-          randomInRange( xmin, xmax ),
-          randomInRange( ymin, ymax )
-        );
+        if ( shear === 0 ) {
+          windSpeed = wind;
+        } else {
+          // Subtract a random percentage, the maximum of which is determined
+          // by shear.
+          windSpeed = wind - ( wind * shear * Math.random() );
+        }
+
+        if ( spread === 0 ) {
+          this.points.velocities.push( windSpeed, speed);
+        } else {
+          // Creates a cone centered around 0.
+          angle = ( Math.random() - 0.5 ) * spread;
+          // Rotate ninety degrees and convert to radians.
+          angle = ( angle + 90 ) * DEG_TO_RAD;
+
+          this.points.velocities.push(
+            Math.cos( angle ) * speed + windSpeed,
+            Math.sin( angle ) * speed
+          );
+        }
 
         i++;
       }
@@ -152,9 +184,6 @@
           positions  = this.points.positions,
           velocities = this.points.velocities,
           pointCount = 0.5 * positions.length;
-
-      var dx = this.options.wind    * dt,
-          dy = this.options.gravity * dt;
 
       var xIndex, yIndex;
 
