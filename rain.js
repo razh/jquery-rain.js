@@ -13,21 +13,25 @@
       // Color of rain. Any valid rgb(a)/hsl/hex/etc. color code should work.
       color: 'rgba(255, 255, 255, 0.6)',
       // Number of particles. [0, MAX_VALUE).
-      count: 200,
+      count: 2000,
+      // Gravity.
+      gravity: 100,
       // Width of each particle (perpendicular to the direction of travel).
       // [0, MAX_VALUE).
-      lineWidth: 0.5,
+      lineWidth: 0.3,
       // Length of each particle, as a function of its velocity.
-      scale: 1.25,
+      scale: 0.1,
       // Variation in wind (climatologists may disagree).
       // If 0, the initial wind velocity is the same for all.
-      shear: 0,
-      speed: 2000,
+      // Domain of [0, 1].
+      shear: 0.5,
+      // Speed, positive number.
+      speed: 1000,
       // Angle of spread in degrees. [0, 90]. At 90 degrees, rain will fall 45
       // degrees to the left and 45 degrees to the right.
-      spread: 0,
+      spread: 45,
       // Horizontal velocity.
-      wind: 0
+      wind: -200
     };
 
     // Paul Irish's requestAnimationFrame polyfill.
@@ -51,6 +55,50 @@
 
   function randomInRange( min, max ) {
     return min + Math.random() * ( max - min );
+  }
+
+  /**
+   * Slow downs wind by a random percentage, the maximum value of which is given
+   * by shear.
+   */
+  function calculateWindSpeed( wind, shear ) {
+    if ( shear === 0 ) {
+      return wind;
+    } else {
+      // Subtract a random percentage, the maximum of which is determined
+      // by shear.
+      return wind - ( wind * shear * Math.random() );
+    }
+  }
+
+  /**
+   * Returns the x and y velocities of a rain particle, with wind and spread.
+   * @param  {Number} speed     Initial starting speed.
+   * @param  {Number} windSpeed Wind speed.
+   * @param  {Number} spread    Cone of emission, in degrees. Points downward.
+   * @return {Array}            Array of velocities: [x, y].
+   */
+  function calculateVelocity( speed, windSpeed, spread ) {
+    if ( spread === 0 ) {
+      return [ windSpeed, speed ];
+    } else {
+      // Creates a cone centered around 0.
+      var angle = ( Math.random() - 0.5 ) * spread;
+      // Rotate ninety degrees and convert to radians.
+      angle = ( angle + 90 ) * DEG_TO_RAD;
+
+      return [
+        Math.cos( angle ) * speed + windSpeed,
+        Math.sin( angle ) * speed
+      ];
+    }
+  }
+
+  /**
+   * Limits the value to within the range [min, max].
+   */
+  function limit( value, min, max ) {
+    return Math.min( Math.max( value, min ), max );
   }
 
   function draw() {
@@ -86,6 +134,15 @@
     this.$el = $( el );
 
     this.options = $.extend( {}, defaults, options );
+
+    // Limit values.
+    this.options.count     = limit( this.options.count,     0, Number.MAX_VALUE );
+    this.options.gravity   = limit( this.options.gravity,   0, Number.MAX_VALUE );
+    this.options.lineWidth = limit( this.options.lineWidth, 0, Number.MAX_VALUE );
+    this.options.scale     = limit( this.options.scale,     0, Number.MAX_VALUE );
+    this.options.shear     = limit( this.options.shear,     0,                1 );
+    this.options.speed     = limit( this.options.speed,     0, Number.MAX_VALUE );
+    this.options.spread    = limit( this.options.spread,    0,               90 );
 
     this._defaults = defaults;
     this._name = pluginName;
@@ -129,37 +186,15 @@
           spread = this.options.spread,
           wind   = this.options.wind;
 
-      var angle,
-          windSpeed,
-          i = 0;
-
+      var i = 0, v;
       while ( i < this.options.count ) {
         this.points.positions.push(
           Math.floor( Math.random() * width  ),
           Math.floor( Math.random() * height )
         );
 
-        if ( shear === 0 ) {
-          windSpeed = wind;
-        } else {
-          // Subtract a random percentage, the maximum of which is determined
-          // by shear.
-          windSpeed = wind - ( wind * shear * Math.random() );
-        }
-
-        if ( spread === 0 ) {
-          this.points.velocities.push( windSpeed, speed);
-        } else {
-          // Creates a cone centered around 0.
-          angle = ( Math.random() - 0.5 ) * spread;
-          // Rotate ninety degrees and convert to radians.
-          angle = ( angle + 90 ) * DEG_TO_RAD;
-
-          this.points.velocities.push(
-            Math.cos( angle ) * speed + windSpeed,
-            Math.sin( angle ) * speed
-          );
-        }
+        v = calculateVelocity( speed, calculateWindSpeed( wind, shear ), spread );
+        this.points.velocities.push( v[0], v[1] );
 
         i++;
       }
@@ -180,16 +215,25 @@
       var width  = this.canvas.width,
           height = this.canvas.height;
 
+      var shear  = this.options.shear,
+          speed  = this.options.speed,
+          spread = this.options.spread,
+          wind   = this.options.wind;
+
       var i = 0,
           positions  = this.points.positions,
           velocities = this.points.velocities,
           pointCount = 0.5 * positions.length;
 
-      var xIndex, yIndex;
+      var dv = this.options.gravity * dt;
+
+      var xIndex, yIndex, v;
 
       while ( i < pointCount ) {
         xIndex = 2 * i;
         yIndex = 2 * i + 1;
+
+        velocities[ yIndex ] += dv;
 
         positions[ xIndex ] += velocities[ xIndex ] * dt;
         positions[ yIndex ] += velocities[ yIndex ] * dt;
@@ -200,10 +244,13 @@
           positions[ xIndex ] = 0;
         }
 
-        if ( 0 > positions[ yIndex ] ) {
-          positions[ yIndex ] = height;
-        } else if ( positions[ yIndex ] > height ) {
+        // No positive velocities.
+        if ( positions[ yIndex ] > height ) {
           positions[ yIndex ] = 0;
+
+          v = calculateVelocity( speed, calculateWindSpeed( wind, shear ), spread );
+          velocities[ xIndex ] = v[0];
+          velocities[ yIndex ] = v[1];
         }
 
         i++;
@@ -233,8 +280,8 @@
         x0 = positions[ xIndex ];
         y0 = positions[ yIndex ];
 
-        x1 = x0 - velocities[ xIndex ] * scale;
-        y1 = y0 - velocities[ yIndex ] * scale;
+        x1 = x0 + velocities[ xIndex ] * scale;
+        y1 = y0 + velocities[ yIndex ] * scale;
 
         i++;
 
