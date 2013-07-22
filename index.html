@@ -83,23 +83,25 @@
   <script src="./rain.js"></script>
   <script>
     $(function() {
-      $( '#section-00' ).rain();
-      $( '#test-00' ).rain({
-        gravity: -100,
-        color: 'green',
-        count: 200,
-        lineWidth: 2,
-        velocity: {
-          min: {
-            x: 0,
-            y: 0
-          },
-          max: {
-            x: -10,
-            y: -40
-          }
-        }
+      $( '#section-00' ).rain({
+        count:1
       });
+      // $( '#test-00' ).rain({
+      //   gravity: -100,
+      //   color: 'green',
+      //   count: 200,
+      //   lineWidth: 2,
+      //   velocity: {
+      //     min: {
+      //       x: 0,
+      //       y: 0
+      //     },
+      //     max: {
+      //       x: -10,
+      //       y: -40
+      //     }
+      //   }
+      // });
     });
   </script>
 </body>

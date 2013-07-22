@@ -10,23 +10,17 @@
 
   var pluginName = 'rain',
     defaults = {
-      gravity: 10,
+      //
       color: 'rgba(255, 255, 255, 0.6)',
-      count: 500,
+      // Number of particles.
+      count: 200,
       lineWidth: 0.5,
       scale: 1.25,
-      wind: -2,
-      velocity: {
-        min: {
-          x: 0,
-          y: 10
-        },
-        max: {
-          x: -4,
-          y: 50
-        }
-      },
-      debug: false
+      // Climatologists may disagree.
+      shear: 0,
+      speed: 2000,
+      spread: 0,
+      wind: 0
     };
 
     // Paul Irish's requestAnimationFrame polyfill.
@@ -159,11 +153,6 @@
           velocities = this.points.velocities,
           pointCount = 0.5 * positions.length;
 
-      var xmin = this.options.velocity.min.x,
-          ymin = this.options.velocity.min.y,
-          xmax = this.options.velocity.max.x,
-          ymax = this.options.velocity.max.y;
-
       var dx = this.options.wind    * dt,
           dy = this.options.gravity * dt;
 
@@ -173,29 +162,18 @@
         xIndex = 2 * i;
         yIndex = 2 * i + 1;
 
-        velocities[ xIndex ] += dx;
-        velocities[ yIndex ] += dy;
-
-        positions[ xIndex ] += velocities[ xIndex ];
-        positions[ yIndex ] += velocities[ yIndex ];
+        positions[ xIndex ] += velocities[ xIndex ] * dt;
+        positions[ yIndex ] += velocities[ yIndex ] * dt;
 
         if ( 0 > positions[ xIndex ] ) {
-          velocities[ xIndex ] = randomInRange( xmin, xmax );
           positions[ xIndex ] = width;
-          positions[ yIndex ] = Math.random() * this.canvas.height;
         } else if ( positions[ xIndex ] > width ) {
-          velocities[ xIndex ] = randomInRange( xmin, xmax );
           positions[ xIndex ] = 0;
-          positions[ yIndex ] = Math.random() * this.canvas.height;
         }
 
         if ( 0 > positions[ yIndex ] ) {
-          velocities[ yIndex ] = randomInRange( ymin, ymax );
-          positions[ xIndex ] = Math.random() * this.canvas.width;
           positions[ yIndex ] = height;
         } else if ( positions[ yIndex ] > height ) {
-          velocities[ yIndex ] = randomInRange( ymin, ymax );
-          positions[ xIndex ] = Math.random() * this.canvas.width;
           positions[ yIndex ] = 0;
         }
 
