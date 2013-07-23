@@ -58,6 +58,17 @@
   }
 
   /**
+   * Returns a random integer:
+   *
+   *  [0, value) if value  > 0
+   *  (value, 0]    value  < 0
+   *  0             value is 0
+   */
+  function randomInt( value ) {
+    return Math.round( Math.random() * value );
+  }
+
+  /**
    * Limits the value to within the range [min, max].
    */
   function limit( value, min, max ) {
@@ -148,8 +159,8 @@
       var i = 0;
       while ( i < this.options.count ) {
         this.points.positions.push(
-          Math.floor( Math.random() * width  ),
-          Math.floor( Math.random() * height )
+          randomInt( width  ),
+          randomInt( height )
         );
 
         this.points.velocities.push(
@@ -208,16 +219,20 @@
         if ( 0 > x0 && 0 > x1 ) {
           velocities[ xIndex ] = randomInRange( xmin, xmax );
           positions[ xIndex ] = width;
+          positions[ yIndex ] = randomInt( height );
         } else if ( x0 > width && x1 > width ) {
           velocities[ xIndex ] = randomInRange( xmin, xmax );
           positions[ xIndex ] = 0;
+          positions[ yIndex ] = randomInt( height );
         }
 
         if ( 0 > y0 && 0 > y1 ) {
           velocities[ yIndex ] = randomInRange( ymin, ymax );
+          positions[ xIndex ] = randomInt( width );
           positions[ yIndex ] = height;
         } else if ( y0 > height && y1 > height ) {
           velocities[ yIndex ] = randomInRange( ymin, ymax );
+          positions[ xIndex ] = randomInt( width );
           positions[ yIndex ] = 0;
         }
 
