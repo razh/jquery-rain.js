@@ -86,22 +86,22 @@
       $( '#section-00' ).rain({
         // spread: 90
       });
-      // $( '#test-00' ).rain({
-      //   gravity: -100,
-      //   color: 'green',
-      //   count: 200,
-      //   lineWidth: 2,
-      //   velocity: {
-      //     min: {
-      //       x: 0,
-      //       y: 0
-      //     },
-      //     max: {
-      //       x: -10,
-      //       y: -40
-      //     }
-      //   }
-      // });
+      $( '#test-00' ).rain({
+        gravity: 0,
+        color: 'green',
+        count: 200,
+        lineWidth: 2,
+        velocity: {
+          x: {
+            min: 0,
+            max: -1
+          },
+          y: {
+            min: 0,
+            max: -2
+          }
+        }
+      });
     });
   </script>
 </body>
