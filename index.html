@@ -37,15 +37,24 @@
 
     #section-00 {
       background-color: #50505D;
-      box-shadow: inset 0 0 150px black;
+      box-shadow: inset 0 0 150px black,
+        inset 0 0 10px black;
     }
 
     #section-01 {
-      background: white;
+      background: black;
     }
 
     #section-02 {
       background: black;
+    }
+
+    #section-03 {
+      background: black;
+    }
+
+    #section-04 {
+      background: #222;
     }
 
     .test {
@@ -54,13 +63,10 @@
       float: left;
     }
 
-    #test-00 {
-      background-color: white;
+    #test-03 {
+      background-color: black;
     }
 
-    #test-03 {
-      background-color: blue;
-    }
   </style>
 
   <script type="text/javascript" src="//use.typekit.net/vhb3jey.js"></script>
@@ -73,22 +79,76 @@
 
   <div class="section" id="section-01"></div>
 
-  <div class="section" id="section-02">
-  <div class="test" id="test-00"></div>
-  <div class="test" id="test-01"></div>
-  <div class="test" id="test-02"></div>
-  <div class="test" id="test-03"></div>
+  <div class="section" id="section-02"></div>
+
+  <div class="section" id="section-03"></div>
+
+  <div class="section" id="section-04">
+    <div class="test" id="test-00"></div>
+    <div class="test" id="test-01"></div>
+    <div class="test" id="test-02"></div>
+    <div class="test" id="test-03"></div>
   </div>
+
   <script src="./app/components/jquery/jquery.js"></script>
   <script src="./rain.js"></script>
   <script>
     $(function() {
-      $( '#section-00' ).rain({
-        // spread: 90
+      $( '#section-00' ).rain();
+
+      $( '#section-01' ).rain({
+        color: 'rgba(200, 240, 255, 0.5)',
+        count: 50,
+        gravity: 2,
+        lineWidth: 0.7,
+        scale: 2,
+        velocity: {
+          x: {
+            min: 0,
+            max: 0
+          },
+          y: {
+            min: 30,
+            max: 40
+          }
+        }
       });
+
+      $( '#section-02' ).rain({
+        gravity: 0,
+        lineWidth: 2,
+        scale: 8,
+        velocity: {
+          x: {
+            min: 0,
+            max: 0.25
+          },
+          y: {
+            min: 0,
+            max: -0.25
+          }
+        }
+      });
+
+      $( '#section-03' ).rain({
+        count: 100,
+        gravity: 0,
+        lineWidth: 2,
+        scale: 120,
+        velocity: {
+          x: {
+            min: 0.01,
+            max: 0.02
+          },
+          y: {
+            min: -0.01,
+            max:  0.01
+          }
+        }
+      });
+
       $( '#test-00' ).rain({
         gravity: 0,
-        color: 'green',
         count: 200,
         lineWidth: 2,
         velocity: {
@@ -102,6 +162,7 @@
           }
         }
       });
+
     });
   </script>
 </body>

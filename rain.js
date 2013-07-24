@@ -11,7 +11,7 @@
   var pluginName = 'rain',
     defaults = {
       // Color of rain. Any valid rgb(a)/hsl/hex/etc. color code should work.
-      color: 'rgba(255, 255, 255, 0.6)',
+      color: 'rgba(255, 255, 255, 0.5)',
       // Number of particles. [0, MAX_VALUE).
       count: 500,
       // Gravity.
@@ -295,6 +295,14 @@
           i++;
         }
       }
+    },
+
+    play: function() {
+      this.running = true;
+    },
+
+    pause: function() {
+      this.running = false;
     }
   };
 
