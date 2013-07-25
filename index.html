@@ -35,14 +35,10 @@
       height: 100%;
     }
 
-    #section-00 {
-      background-color: #50505D;
+    #section-01 {
+      background-color: #444;
       box-shadow: inset 0 0 150px black,
         inset 0 0 10px black;
-    }
-
-    #section-01 {
-      background: black;
     }
 
     #section-02 {
@@ -54,6 +50,10 @@
     }
 
     #section-04 {
+      background: black;
+    }
+
+    #section-05 {
       background: #222;
     }
 
@@ -63,27 +63,28 @@
       float: left;
     }
 
-    #test-03 {
-      background-color: black;
+    #section-06 {
+      background-color: gray;
     }
-
   </style>
 
   <script type="text/javascript" src="//use.typekit.net/vhb3jey.js"></script>
   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
 </head>
 <body>
-  <div class="section" id="section-00">
+  <div class="section" id="section-00"></div>
+
+  <div class="section" id="section-01">
     <div class="lead">It was a dark and stormy night...</div>
   </div>
-
-  <div class="section" id="section-01"></div>
 
   <div class="section" id="section-02"></div>
 
   <div class="section" id="section-03"></div>
 
-  <div class="section" id="section-04">
+  <div class="section" id="section-04"></div>
+
+  <div class="section" id="section-05">
     <div class="test" id="test-00"></div>
     <div class="test" id="test-01"></div>
     <div class="test" id="test-02"></div>
@@ -94,9 +95,27 @@
   <script src="./rain.js"></script>
   <script>
     $(function() {
-      $( '#section-00' ).rain();
+      $( '#section-00' ).rain({
+        color: 'rgba(20, 20, 20, 0.9)',
+        count: 100,
+        gravity: 0,
+        lineWidth: 2,
+        scale: 20,
+        velocity: {
+          x: {
+            min: -0.1,
+            max: 0.01
+          },
+          y: {
+            min: -0.1,
+            max:  0.1
+          }
+        }
+      }),
 
-      $( '#section-01' ).rain({
+      $( '#section-01' ).rain();
+
+      $( '#section-02' ).rain({
         color: 'rgba(200, 240, 255, 0.5)',
         count: 50,
         gravity: 2,
@@ -114,7 +133,7 @@
         }
       });
 
-      $( '#section-02' ).rain({
+      $( '#section-03' ).rain({
         gravity: 0,
         lineWidth: 2,
         scale: 8,
@@ -130,15 +149,15 @@
         }
       });
 
-      $( '#section-03' ).rain({
+      $( '#section-04' ).rain({
         count: 100,
         gravity: 0,
         lineWidth: 2,
-        scale: 120,
+        scale: 100,
         velocity: {
           x: {
             min: 0.01,
-            max: 0.02
+            max: 0.03
           },
           y: {
             min: -0.01,
@@ -163,6 +182,53 @@
         }
       });
 
+      $( '#test-01' ).rain({
+        gravity: 0,
+        count: 200,
+        lineWidth: 2,
+        velocity: {
+          x: {
+            min: 0,
+            max: 2
+          },
+          y: {
+            min: 1,
+            max: -1
+          }
+        }
+      });
+
+      $( '#test-02' ).rain({
+        gravity: 0,
+        count: 200,
+        lineWidth: 2,
+        velocity: {
+          x: {
+            min: 0,
+            max: -2
+          },
+          y: {
+            min: 1,
+            max: -1
+          }
+        }
+      });
+
+      $( '#test-03' ).rain({
+        gravity: 0,
+        count: 200,
+        lineWidth: 2,
+        velocity: {
+          x: {
+            min: 0,
+            max: -1
+          },
+          y: {
+            min: 0,
+            max: 2
+          }
+        }
+      });
     });
   </script>
 </body>
